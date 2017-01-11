@@ -1,0 +1,35 @@
+<!DOCTYPE html>  
+<html>  
+    <head>  
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />  
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">  
+        <title>City Population</title>  
+        <script id='sap-ui-bootstrap' 
+            src='/sap/ui5/1/resources/sap-ui-core.js'  
+            data-sap-ui-theme='sap_goldreflection'  
+            data-sap-ui-libs='sap.ui.core,sap.ui.commons,sap.viz'>
+        </script>  
+        <script>  
+            var oModel = new sap.ui.model.odata.ODataModel("/CODEJAMMER/codejam/services/cities.xsodata/", true);
+            sap.ui.getCore().setModel(oModel);  
+            var dataset = new sap.viz.ui5.data.FlattenedDataset({  
+                dimensions : [  
+                  { axis : 1, name : 'City', value : "{CITY_NAME}" }  
+                ],  
+                measures : [  
+                  { name : 'Population', value : '{POPULATION}' }  
+                ],  
+                data : { path : "/city" }  
+            });  
+            new sap.viz.ui5.Column("oChart",{  
+                width : "100%",  
+                height : "200px",  
+                title : { visible : true, text : 'City Populations' },  
+                dataset : dataset  
+            }).placeAt("content");  
+        </script>  
+    </head>  
+<body class="sapUiBody">  
+  <div id="content"></div>  
+</body>  
+</html>  

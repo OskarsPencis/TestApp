@@ -1,0 +1,5 @@
+service namespace "CODEJAMMER.codejam.services.cities" {
+    "CODEJAMMER.codejam.data::cities.City" as "city";
+    "CODEJAMMER.codejam.data::cities.City" as "new"
+        create using "CODEJAMMER.codejam.procedures::newData";
+}

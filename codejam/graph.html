@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=dege" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>City Population</title>
+        <style>
+            #wrapper {
+                width: 100%;
+            }
+            #contentL {
+                float: left;
+                width: 50%;
+            }
+            #contentR {
+                float: right;
+                width: 50%;
+            }
+            #cleared: {
+                clear: both;
+            }
+        </style>
+        <script id='sap-ui-bootstrap'
+            src='/sap/ui5/1/resources/sap-ui-core.js'
+            data-sap-ui-theme='sap_goldreflection'
+            data-sap-ui-libs='sap.ui.core,sap.ui.commons,sap.viz,sap.ui.table'>
+        </script>
+        <script>
+            var oModel = new sap.ui.model.odata.ODataModel("/CODEJAMMER/codejam/services/cities.xsodata/", false);
+            var oFilterH = new sap.ui.model.Filter('POPULATION',sap.ui.model.FilterOperator.GT,10000000);
+            var oFilterL = new sap.ui.model.Filter('POPULATION',sap.ui.model.FilterOperator.LT,5000);
+            var oFilterL2 = new sap.ui.model.Filter('POPULATION',sap.ui.model.FilterOperator.GT,0);
+            var oFilterL3 = new sap.ui.model.Filter([oFilterL,oFilterL2], true /*AND*/);
+            sap.ui.getCore().setModel(oModel);
+            var datasetH = new sap.viz.ui5.data.FlattenedDataset({
+                dimensions : [
+                    { axis : 1, name : 'City', value : '{CITY_NAME}' }
+                ],
+                measures : [
+                    { name : 'Population', value : '{POPULATION}' }
+                ],
+                data : { path : "/city", filters: [oFilterH] },
+                parameters: { select: 'CITY_NAME,POPULATION' }
+            });
+            new sap.viz.ui5.Bar("oChartH",{
+                width: "100%",
+                height: "600px",
+                title: { visible: true, text: 'Largest City Populations' },
+                dataset: datasetH
+            }).placeAt("contentL");
+            var datasetL = new sap.viz.ui5.data.FlattenedDataset({
+                dimensions : [
+                    { axis : 1, name : 'City', value : '{CITY_NAME}' }
+                ],
+                measures : [
+                    { name : 'Population', value : '{POPULATION}' }
+                ],
+                data : { path : "/city", filters: [oFilterL3] },
+                parameters: { select: 'CITY_NAME,POPULATION' }
+            });
+            new sap.viz.ui5.Pie("oChartL",{
+                width: "100%",
+                height: "600px",
+                title: { visible: true, text: 'City Populations' },
+                dataset: datasetL
+            }).placeAt("contentR");
+        </script>
+    </head>
+    <body class="sapUiBody">
+        <div id="wrapper">
+            <div id="contentL"></div>
+            <div id="contentR"></div>
+            <div id="cleared"></div>
+        </div>
+    </body>
+</html>

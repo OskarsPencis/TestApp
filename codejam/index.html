@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta charset="UTF-8" />
+        <title>Cities</title>
+        <script id='sap-ui-bootstrap'
+            src='/sap/ui5/1/resources/sap-ui-core.js'
+            data-sap-ui-theme='sap_goldreflection'
+            data-sap-ui-libs='sap.ui.core,sap.ui.commons,sap.ui.table' >
+        </script>
+        <script language="JavaScript">
+            var aData;
+            $.ajax
+            ({
+                type: "GET",
+                url: "/CODEJAMMER/codejam/services/cities.xsodata/city/?$format=json",
+                dataType: 'json',
+                async: false,
+                success: function (data, status){
+                    aData = data.d.results;
+                }
+            });
+            
+            //Create an instance of the table control
+            var oTable = new sap.ui.table.Table({
+                title: "City Information",
+                visibleRowCount: 7,
+                firstVisibleRow: 3,
+                selectionMode: sap.ui.table.SelectionMode.Single
+            });
+            
+            //Define the columns and the control templates to be used
+            var oColumn = new sap.ui.table.Column({
+                label: new sap.ui.commons.Label({text: "Country"}),
+                template: new sap.ui.commons.TextView().bindProperty("text", "COUNTRY_ISO2"),
+                sortProperty: "COUNTRY_ISO2",
+                filterPropert: "COUNTRY_ISO2",
+                width: "100px"
+            });
+            oTable.addColumn(oColumn);
+            
+            //Define the columns and the control templates to be used
+            var oColumn = new sap.ui.table.Column({
+                label: new sap.ui.commons.Label({text: "Name"}),
+                template: new sap.ui.commons.TextView().bindProperty("text", "CITY_NAME"),
+                sortProperty: "CITY_NAME",
+                filterPropert: "CITY_NAME",
+                width: "100px"
+            });
+            oTable.addColumn(oColumn);
+            
+            //Define the columns and the control templates to be used
+            var oColumn = new sap.ui.table.Column({
+                label: new sap.ui.commons.Label({text: "Population"}),
+                template: new sap.ui.commons.TextView().bindProperty("text", "POPULATION"),
+                sortProperty: "POPULATION",
+                filterPropert: "POPULATION",
+                width: "100px"
+            });
+            oTable.addColumn(oColumn);
+            
+            //CREATE A MODEL AND BIND THE TABLE ROWS TO THIS MODEL
+            var oModel = new sap.ui.model.json.JSONModel();
+            oModel.setData({modelData: aData});
+            oTable.setModel(oModel);
+            oTable.bindRows("/modelData");
+            
+            //Initially sort the table
+            oTable.sort(oTable.getColumns()[2]);
+            
+            //Bring the table onto the UI
+            oTable.placeAt("cTable");
+            
+            
+        </script>
+    </head>
+    <body>
+        <div id="cTable"></div>
+    </body>
+</html>

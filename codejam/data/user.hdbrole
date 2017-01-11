@@ -1,0 +1,9 @@
+role CODEJAMMER.codejam.data::user
+{
+schema CODEJAMMER.codejam.data:CJCITY.hdbschema: CREATE ANY;
+catalog schema "CJCITY": CREATE ANY;
+catalog sql object "CJCITY"."CODEJAMMER.codejam.data::cities.City": //Objecttype: TABLE
+	SELECT, UPDATE, DELETE, INSERT;
+
+
+}

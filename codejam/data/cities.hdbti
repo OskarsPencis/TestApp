@@ -1,0 +1,7 @@
+import    =     [
+                { 
+                    cdstable = "CODEJAMMER.codejam.data::cities.City";
+                    file = "CODEJAMMER.codejam.data:world_cities_id.csv";          
+                    header = true;
+                } 
+             ];*/

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cities</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=dege" />
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+        <style>
+            html, body, #map-canvas {
+                height: 100%;
+                margin: 0px;
+                padding: 0px;
+            }
+            #panel {
+                position: absolute;
+                top: 5px;
+                left: 30%;
+                margin-left: -80px;
+                z-index: 5;
+                background-color: #fff;
+                padding: 5px;
+                border: 1px solid #999;
+            }
+        </style>
+        <script id="sap-ui-bootstrap"
+            type="text/javascript"
+            src='/sap/ui5/1/resources/sap-ui-core.js'
+            data-sap-ui-theme='sap_bluecrystal'>
+        </script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=visualization"></script>
+        <script>
+            var map, pointArray, heatmap;
+            var peopleData = [];
+            var markers = [];
+            var recordcount = 0;
+            
+            var iconBase = 'http://maps.google.com/mapfiles/kml/pal3/';
+            
+            //Load history from HANA
+            peopleData = [];
+            $.ajax({
+                url: '/CODEJAMMER/codejam/services/cities.xsodata/city?&format=json',
+                async:false,
+                dataType: 'json',
+                success: function(data) {
+                    for(var i = 0; i < data['d']['results'].length; i++){
+                        //Genereate array data for heatmap
+                        peopleData.push(new google.maps.LatLng(data['d']['results'][i]['LAT'],data['d']['results'][i]['LON']));
+                        recordcount = data['d']['results'].length;
+                        
+                        addMarker(data['d']['results'][i]['LAT'],data['d']['results'][i]['LON'],data['d']['results'][i]['CITY_NAME'],data['d']['results'][i]['POPULATION'],'icon43.png');
+                    }
+                },
+                failure: function(errMsg) {
+                    console.log(errMsg);
+                }
+            });
+            
+            function initialize() {
+                var mapOptions = {
+                    zoom: 18,
+                    mapTypeId: google.maps.MapTypeId.SATELLITE
+                };
+                map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+                document.getElementById('recordcount').innerHTML = '# Records: ' + recordcount;
+                
+                google.maps.event.addListener(map, 'click', function(event) {
+                    addMarker(event.latLng);
+                });
+                
+                //Generate heat map layer of people data
+                var pointArray = new google.maps.MVCArray(peopleData);
+                heatmap = new google.maps.visualization.HeatmapLayer({
+                    data: pointArray
+                });
+                heatmap.setMap(map);
+                
+                //Try HTML5 geolocation
+                if(navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        //Set map
+                        addMarker(position.coords.latitude,position.coords.longitude, 'Me', 1, 'icon56.png')
+                        pos = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+                        map.setCenter(pos);
+                    }, function() {
+                        handleNoGeolocation(true);
+                    });
+                } else {
+                    //Browser doesn't support Geolocation
+                    handleNoGeolocation(false);
+                }
+            }
+            
+            function handleNoGeolocation(errorFlag) {
+                if (errorFlag) {
+                    var content = 'Error: The Geolocation service failed.';
+                } else {
+                    var content = 'Error: Your browser doesn\'t support geolocation,';
+                }
+                
+                var options = {
+                    map: map,
+                    position: new google.maps.LatLng(60, 105),
+                    content: content
+                };
+                
+                var infowindow = new google.maps.InfoWindow(options);
+                map.setCenter(options.position);
+            }
+            
+            function toogleHeatmap() {
+                heatmap.setMap(heatmap.getMap() ? null : map);
+            }
+            
+            function changeOpacity() {
+                heatmap.set('opacity', heatmap.get('opacity') ? null : 0.4);
+            }
+            
+            function updateMap() {
+                //Update map, redraw, recount records
+            }
+            
+            //Sets the map on all markers in the array.
+            function setAllMap(map) {
+                for (var i = 0; i < markers.length; i++) {
+                    markers[i].setMap(map);
+                }
+            }
+            
+            //Removes the markers form the map, but keeps them in array.
+            function clearMarkers() {
+                setAllMap(null);
+            }
+            
+            //Shows any markers currently in the array.
+            function showMarkers() {
+                setAllMap(map);
+            }
+            
+            function addMarker(lat,lng, city, pop, icon) {
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(lat,lng),
+                    map: map,
+                    icon: iconBase + icon,
+                    title: city + '(Population ' + pop + ')'
+                });
+                markers.push(marker);
+            }
+            
+            google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
+    </head>
+    <body>
+        <div id="panel">
+            <button onclick="clearMarkers()">Hide Markers</button>
+            <button onclick="showMarkers()">Show All Markers</button>
+            <button onclick="changeOpacity()">Change Opacity</button>
+            <button id="recordcount"># Records: 0</button>
+        </div>
+        <div id="map-canvas"></div>
+    </body>
+</html>
