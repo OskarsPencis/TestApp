@@ -1,5 +1,5 @@
 function isEmpty(str) {
-    return (!str || 0 === str.length);
+    return (!str || str.length === 0);
 }
 
 function insertEntry() {
@@ -16,25 +16,25 @@ function insertEntry() {
     var PROVINCE = $.request.parameters.get('prov');
     
     
-    if ( isEmpty(ID) === true) {
+    if ( isEmpty(ID) === true ) {
         $.response.status = $.net.http.BAD_REQUEST;
         $.response.setBody('ID cannot be empty');
         return;
     }
     
-    if ( isEmpty(CITY_NAME) === true) {
+    if ( isEmpty(CITY_NAME) === true ) {
         $.response.status = $.net.http.BAD_REQUEST;
         $.response.setBody('City name cannot be empty');
         return;
     }
     
-    if ( isEmpty(LAT) === true) {
+    if ( isEmpty(LAT) === true ) {
         $.response.status = $.net.http.BAD_REQUEST;
         $.response.setBody('Latitude cannot be empty');
         return;
     }
     
-    if ( isEmpty(LON) === true) {
+    if ( isEmpty(LON) === true ) {
         $.response.status = $.net.http.BAD_REQUEST;
         $.response.setBody('Longitude cannot be empty');
         return;
@@ -65,10 +65,10 @@ function insertEntry() {
     
     try {
         //Insert new record
-        query = "UPSERT INTO \"CJCITY\".\"CODEJAMMER.codejam.data:cities.City\" values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        query = "INSERT INTO \"CJCITY\".\"CODEJAMMER.codejam.data::cities.City\" values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         conn.executeUpdate(query, ID, CITY_NAME, ASCII_NAME, LAT, LON, POPULATION, COUNTRY, COUNTRY_ISO2, COUNTRY_ISO3, PROVINCE);
         conn.commit();
-        conn.clode();
+        conn.close();
     } catch (error) {
         $.response.status = $.net.http.INTERNAL_SERVER_ERROR;
         $.response.setBody(error.message);
